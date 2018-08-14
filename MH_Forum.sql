@@ -19,3 +19,13 @@ Create Table dbo.LargeMonster
 	,Blight			varchar(50)			NULL
 	,MonsterType	varchar(40)			NOT NULL
 )
+
+GO
+Create Table dbo.Habitat
+(
+	HabitatID		tinyint				PRIMARY KEY	Identity
+	,HabitatName	varchar(40)			NOT NULL	Unique
+	,NumAreas		tinyint				Check(NumAreas Between 1 AND 25)
+)
+
+GO

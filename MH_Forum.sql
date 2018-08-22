@@ -76,3 +76,52 @@ Create Table ArmorPiece
 	,Skills			varchar(100)		NULL		
 )
 GO
+
+GO
+Create Table Weapon
+(
+	WeaponID		int					PRIMARY KEY	Identity
+	,WeaponName		varchar(40)			NOT NULL	Unique
+	,WeaponClass	varchar(20)			NOT NULL
+	,Elements		varchar(30)			NULL
+	,Status			varchar(20)			NULL
+	,BaseAttack		numeric(4,0)		NOT NULL
+	--need to add a check to this to ensure it always has a percent sign in it EX. -20%, 10%, -25%.
+	,Affinity		varchar(4)			NULL
+	--will always be in format of R(number. Ex. R8, R5
+	,Rarity			Char(2)				NOT NULL
+	,Defense		char(3)				NULL
+	,Slots			char(4)				NULL
+	--says from what tree of weapons it is crafted from or where you get it.
+	,RootTree		varchar(15)			NOT NULL	CHECK(RootTree IN ('Bone', 'Ore', 'DragonBone', 'BlackSteel', 'WorkShop', 'Taroth', 'Lunastra', 'Deviljho'))
+	--need to specify this more
+	,ElderSeal		bit					NOT NULL	Default 'False'
+	--NatSharpness is the base level of sharpness that it has Ex. Blue, Green
+	--problem wit this and MaxSharpness is it has no way to show how much of said sharpness it has i.e. this weapon has 'this' much blue sharpness while this weapon only has a little white sharpness.
+	,NatSharpness	varchar(6)			NOT NULL	CHECK(NatSharpness IN ('Orange', 'Red', 'Yellow', 'Green', 'Blue', 'White', 'Purple'))
+	,MaxSharpness	varchar(6)			NOT NULL	CHECK(NatSharpness IN ('Orange', 'Red', 'Yellow', 'Green', 'Blue', 'White', 'Purple'))
+	,LMonsterID		tinyint				FOREIGN KEY REFERENCES LargeMonster(LMonsterID)
+)
+GO
+
+GO
+Create Table WeaponChar
+(
+	WeapCharID		int					PRIMARY KEY	IDENTITY
+	,WeaponCharName	varchar(40)			NOT NULL
+	,SkillsID		int					FOREIGN KEY REFERENCES Skills(SkillsID)
+)
+GO
+
+GO
+Create Table Skills
+(
+	SkillsID		int					PRIMARY KEY IDENTITY
+	,SkillName		varchar(30)			NOT NULL	Unique
+	,SkillDescript	varchar(300)		NULL
+	,BaseEffect		varchar(100)		NOT NULL
+	,MaxEffect		varchar(100)		NOT NULL
+	,MaxLevels		numeric(1)			NOT NULL
+	,IsSetBonus		bit					NOT NULL	Default 'False'
+)
+GO

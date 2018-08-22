@@ -55,7 +55,7 @@ Create Table dbo.Armor
 	--SetBonus: a lot of the higher ranked armor sets have skills called Set Bonuses 
 	--that you get when you wear multiple armor pieces at the same time.
 	--the problem we run into is that we can sometimes have 1 or 2 set bonuses per armor set
-
+	,SetSkills		varchar(200)		NULL
 	--Resistances are how much resistance this armor set has to that certain element.
 	,FireRes		tinyint				NOT NULL	Check(FireRes Between -30 AND 30)
 	,WaterRes		tinyint				NOT NULL	Check(WaterRes Between -30 AND 30)
@@ -63,13 +63,16 @@ Create Table dbo.Armor
 	,IceRes			tinyint				NOT NULL	Check(IceRes Between -30 AND 30)
 	,DragonRes		tinyint				NOT NULL	Check(DragonRes Between -30 AND 30)
 	,Rank			varchar(7)			NOT NULL	Check(Rank IN ('Normal', 'Alpha', 'Beta', 'Gamma'))
-	--ArmorPieceID	int					FOREIGN KEY References Armor(ArmorPieceID)
+	,ArmorPieceID	int					FOREIGN KEY References ArmorPiece(ArmorPieceID)
 )
 GO
 
 GO
-/*Create Table Armor.ArmorPiece
+Create Table ArmorPiece
 (
 	ArmorPieceID	int					PRIMARY KEY Identity
-	PieceName
-)*/
+	,PieceName		varchar(40)			NOT NULL	Unique
+	,BodyPart		varchar(6)			NOT NULL	Check(BodyPart IN ('Head', 'Chest', 'Arm', 'Waist', 'Legs'))
+	,Skills			varchar(100)		NULL		
+)
+GO

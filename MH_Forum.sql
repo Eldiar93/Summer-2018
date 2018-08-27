@@ -180,7 +180,9 @@ Create View Mixed_Sets AS
 	JOIN Armor ON Weapon.WeaponID = Armor.ArmorID JOIN ArmorPiece ON Weapon.WeaponID = ArmorPiece.ArmorPieceID
 */
 Insert Into LargeMonster (LMonsterName, SmalllestSize, LargestSize, Element, Blight, MonsterType)
-Values	('Kulve Taroth', '4573.0', '4573.0', 'Fire', 'Fireblight', 'Elder Dragon')
+Values	('Kulve Taroth', '4573.0', '4573.0', 'Fire', 'Fireblight', 'Elder Dragon'),
+		('Deviljho', '1857.4', '2497.2', 'Dragon', 'Dragonblight', 'Brute Wyvern') 
+									      
 Select * From LargeMonster
 
 Insert Into Habitat (HabitatName,		NumAreas)

@@ -73,6 +73,106 @@ Create Table ArmorPiece
 	ArmorPieceID	int					PRIMARY KEY Identity
 	,PieceName		varchar(40)			NOT NULL	Unique
 	,BodyPart		varchar(6)			NOT NULL	Check(BodyPart IN ('Head', 'Chest', 'Arm', 'Waist', 'Legs'))
-	,Skills			varchar(100)		NULL		
+	,Skills			varchar(100)		NULL
+	--MinDefense is the total defense of the piece of armor has in its base form before being upgraded.
+	,MinDefense		smallint			NOT NULL	Check(MinDefense Between 20 AND 999)
+	--UpDefense is the total defense the piece of armor has when upgraded without also being augmented.
+	,UpDefense		smallint			NOT NULL	Check(UpDefense Between 20 AND 999)
+	--AugDefense is total defense the piece of armor has when augmented AND upgraded all the way
+	,AugDefense		smallint			NOT NULL	Check(AugDefense Between 20 AND 999)		
 )
 GO
+
+GO
+Create Table Weapon
+(
+	WeaponID		int					PRIMARY KEY	Identity
+	,WeaponName		varchar(40)			NOT NULL	Unique
+	,WeaponClass	varchar(20)			NOT NULL
+	,Elements		varchar(30)			NULL
+	,Status			varchar(20)			NULL
+	,BaseAttack		numeric(4,0)		NOT NULL
+	--need to add a check to this to ensure it always has a percent sign in it EX. -20%, 10%, -25%.
+	,Affinity		varchar(4)			NULL
+	--will always be in format of R(number. Ex. R8, R5
+	,Rarity			Char(2)				NOT NULL
+	,Defense		char(3)				NULL
+	,Slots			char(4)				NULL
+	--says from what tree of weapons it is crafted from or where you get it.
+	,RootTree		varchar(15)			NOT NULL	CHECK(RootTree IN ('Bone', 'Ore', 'DragonBone', 'BlackSteel', 'WorkShop', 'Taroth', 'Lunastra', 'Deviljho'))
+	--need to specify this more
+	,ElderSeal		bit					NOT NULL	Default 'False'
+	--NatSharpness is the base level of sharpness that it has Ex. Blue, Green
+	--problem wit this and MaxSharpness is it has no way to show how much of said sharpness it has i.e. this weapon has 'this' much blue sharpness while this weapon only has a little white sharpness.
+	,NatSharpness	varchar(6)			NOT NULL	CHECK(NatSharpness IN ('Orange', 'Red', 'Yellow', 'Green', 'Blue', 'White', 'Purple'))
+	,MaxSharpness	varchar(6)			NOT NULL	CHECK(NatSharpness IN ('Orange', 'Red', 'Yellow', 'Green', 'Blue', 'White', 'Purple'))
+	,LMonsterID		tinyint				FOREIGN KEY REFERENCES LargeMonster(LMonsterID)
+)
+GO
+
+GO
+Create Table WeaponChar
+(
+	WeapCharID		int					PRIMARY KEY	IDENTITY
+	,WeaponCharName	varchar(40)			NOT NULL
+	,SkillsID		int					FOREIGN KEY REFERENCES Skills(SkillsID)
+)
+GO
+
+GO
+Create Table Skills
+(
+	SkillsID		int					PRIMARY KEY IDENTITY
+	,SkillName		varchar(30)			NOT NULL	Unique
+	,SkillDescript	varchar(300)		NULL
+	,BaseEffect		varchar(100)		NOT NULL
+	,MaxEffect		varchar(100)		NOT NULL
+	,MaxLevels		numeric(1)			NOT NULL
+	,IsSetBonus		bit					NOT NULL	Default 'False'
+)
+GO
+
+GO
+Create Table dbo.SmallMonsters
+(
+	SmallMonsterID	tinyint				PRIMARY KEY IDENTITY
+	,SMonsterName	varchar(30)			NOT NULL	Unique
+	,HabitatID		tinyint				FOREIGN KEY REFERENCES Habitat(HabitatID)
+)
+GO
+
+GO
+Create Table Items
+(
+	ItemID			int					PRIMARY KEY IDENTITY
+	,ItemType		varchar(20)			NOT NULL
+	,ItemDescript	varchar(200)		NULL				
+)
+GO
+
+GO
+Create Table CraftItem
+(
+	ItemID			int					NOT NULL	FOREIGN KEY REFERENCES Items(ItemID)
+	,CraftItemID	int					NOT NULL	FOREIGN KEY REFERENCES CraftedItems(CraftItemID)
+	,PRIMARY KEY(ItemID, CraftItemID)
+)
+GO
+
+GO
+Create Table CraftedItems
+(
+	CraftItemID		int					PRIMARY KEY IDENTITY
+	,CraftItemName	varchar(30)			NOT NULL	Unique
+	,ItemEffect		varchar(50)			NOT NULL
+	,ItemsNeeded	varchar(50)			NULL
+	,ItemClass		varchar(20)			NULL
+)
+GO
+/*Attempted View that was supposed to be able to create mixed sets of armors and weapons, 
+problem is it can only show the data of one armor piece at a time and cannot combine certain data togther like AugDefense, Slots and Skills
+Create View Mixed_Sets AS
+	Select WeaponName, WeaponClass, BaseAttack, Elements, Status, Affinity, PieceName, BodyPart, AugDefense, Slots, Skills
+	From Weapon JOIN LargeMonster ON Weapon.WeaponID = LargeMonster.LMonsterID 
+	JOIN Armor ON Weapon.WeaponID = Armor.ArmorID JOIN ArmorPiece ON Weapon.WeaponID = ArmorPiece.ArmorPieceID
+*/

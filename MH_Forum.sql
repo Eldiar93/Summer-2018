@@ -6,24 +6,6 @@ Create Database MonsterHunterforum
 GO
 
 USE MonsterHunterForum
-
-GO
-
-Create Table dbo.LargeMonster
-(
-	LMonsterID		tinyint				PRIMARY KEY Identity
-	,LMonsterName	varchar(30)			NOT NULL	Unique
-	,SmalllestSize	decimal(10,1)		NULL		
-	,LargestSize	decimal(10,1)		NULL
-	,Element		varchar(40)			NULL
-	,Blight			varchar(50)			NULL
-	,MonsterType	varchar(40)			NOT NULL
-	,"Description"	varchar(500)		NULL
-	,HabitatID		tinyint				FOREIGN KEY REFERENCES Habitat(HabitatID)
-	,ArmorID		smallint			FOREIGN KEY REFERENCES Armor(ArmorID)
-)
-GO
-
 GO
 Create Table dbo.Habitat
 (
@@ -32,6 +14,22 @@ Create Table dbo.Habitat
 	,NumAreas		tinyint				Check(NumAreas Between 1 AND 25)
 )
 
+GO
+
+GO
+Create Table ArmorPiece
+(
+	ArmorPieceID	int					PRIMARY KEY Identity
+	,PieceName		varchar(40)			NOT NULL	Unique
+	,BodyPart		varchar(6)			NOT NULL	Check(BodyPart IN ('Head', 'Chest', 'Arm', 'Waist', 'Legs'))
+	,Skills			varchar(100)		NULL
+	--MinDefense is the total defense of the piece of armor has in its base form before being upgraded.
+	,MinDefense		smallint			NOT NULL	Check(MinDefense Between 20 AND 999)
+	--UpDefense is the total defense the piece of armor has when upgraded without also being augmented.
+	,UpDefense		smallint			NOT NULL	Check(UpDefense Between 20 AND 999)
+	--AugDefense is total defense the piece of armor has when augmented AND upgraded all the way
+	,AugDefense		smallint			NOT NULL	Check(AugDefense Between 20 AND 999)		
+)
 GO
 
 GO
@@ -68,18 +66,19 @@ Create Table dbo.Armor
 GO
 
 GO
-Create Table ArmorPiece
+
+Create Table LargeMonster
 (
-	ArmorPieceID	int					PRIMARY KEY Identity
-	,PieceName		varchar(40)			NOT NULL	Unique
-	,BodyPart		varchar(6)			NOT NULL	Check(BodyPart IN ('Head', 'Chest', 'Arm', 'Waist', 'Legs'))
-	,Skills			varchar(100)		NULL
-	--MinDefense is the total defense of the piece of armor has in its base form before being upgraded.
-	,MinDefense		smallint			NOT NULL	Check(MinDefense Between 20 AND 999)
-	--UpDefense is the total defense the piece of armor has when upgraded without also being augmented.
-	,UpDefense		smallint			NOT NULL	Check(UpDefense Between 20 AND 999)
-	--AugDefense is total defense the piece of armor has when augmented AND upgraded all the way
-	,AugDefense		smallint			NOT NULL	Check(AugDefense Between 20 AND 999)		
+	LMonsterID		tinyint				PRIMARY KEY Identity
+	,LMonsterName	varchar(30)			NOT NULL	Unique
+	,SmalllestSize	decimal(10,1)		NULL		
+	,LargestSize	decimal(10,1)		NULL
+	,Element		varchar(40)			NULL
+	,Blight			varchar(50)			NULL
+	,MonsterType	varchar(40)			NOT NULL
+	,"Description"	varchar(500)		NULL
+	,HabitatID		tinyint				FOREIGN KEY REFERENCES Habitat(HabitatID)
+	,ArmorID		smallint			FOREIGN KEY REFERENCES Armor(ArmorID)
 )
 GO
 
@@ -104,18 +103,9 @@ Create Table Weapon
 	,ElderSeal		bit					NOT NULL	Default 'False'
 	--NatSharpness is the base level of sharpness that it has Ex. Blue, Green
 	--problem wit this and MaxSharpness is it has no way to show how much of said sharpness it has i.e. this weapon has 'this' much blue sharpness while this weapon only has a little white sharpness.
-	,NatSharpness	varchar(6)			NOT NULL	CHECK(NatSharpness IN ('Orange', 'Red', 'Yellow', 'Green', 'Blue', 'White', 'Purple'))
-	,MaxSharpness	varchar(6)			NOT NULL	CHECK(NatSharpness IN ('Orange', 'Red', 'Yellow', 'Green', 'Blue', 'White', 'Purple'))
+	,NatSharpness	varchar(6)			NOT NULL	CHECK(NatSharpness IN ('Red', 'Orange',  'Yellow', 'Green', 'Blue', 'White', 'Purple'))
+	,MaxSharpness	varchar(6)			NOT NULL	CHECK(MaxSharpness IN ('Red', 'Orange',  'Yellow', 'Green', 'Blue', 'White', 'Purple'))
 	,LMonsterID		tinyint				FOREIGN KEY REFERENCES LargeMonster(LMonsterID)
-)
-GO
-
-GO
-Create Table WeaponChar
-(
-	WeapCharID		int					PRIMARY KEY	IDENTITY
-	,WeaponCharName	varchar(40)			NOT NULL
-	,SkillsID		int					FOREIGN KEY REFERENCES Skills(SkillsID)
 )
 GO
 
@@ -131,6 +121,17 @@ Create Table Skills
 	,IsSetBonus		bit					NOT NULL	Default 'False'
 )
 GO
+
+GO
+Create Table WeaponChar
+(
+	WeapCharID		int					PRIMARY KEY	IDENTITY
+	,WeaponCharName	varchar(40)			NOT NULL
+	,SkillsID		int					FOREIGN KEY REFERENCES Skills(SkillsID)
+)
+GO
+
+
 
 GO
 Create Table dbo.SmallMonsters
@@ -151,15 +152,6 @@ Create Table Items
 GO
 
 GO
-Create Table CraftItem
-(
-	ItemID			int					NOT NULL	FOREIGN KEY REFERENCES Items(ItemID)
-	,CraftItemID	int					NOT NULL	FOREIGN KEY REFERENCES CraftedItems(CraftItemID)
-	,PRIMARY KEY(ItemID, CraftItemID)
-)
-GO
-
-GO
 Create Table CraftedItems
 (
 	CraftItemID		int					PRIMARY KEY IDENTITY
@@ -169,6 +161,17 @@ Create Table CraftedItems
 	,ItemClass		varchar(20)			NULL
 )
 GO
+
+GO
+Create Table CraftItem
+(
+	ItemID			int					NOT NULL	FOREIGN KEY REFERENCES Items(ItemID)
+	,CraftItemID	int					NOT NULL	FOREIGN KEY REFERENCES CraftedItems(CraftItemID)
+	,PRIMARY KEY(ItemID, CraftItemID)
+)
+GO
+
+
 /*Attempted View that was supposed to be able to create mixed sets of armors and weapons, 
 problem is it can only show the data of one armor piece at a time and cannot combine certain data togther like AugDefense, Slots and Skills
 Create View Mixed_Sets AS
@@ -176,3 +179,19 @@ Create View Mixed_Sets AS
 	From Weapon JOIN LargeMonster ON Weapon.WeaponID = LargeMonster.LMonsterID 
 	JOIN Armor ON Weapon.WeaponID = Armor.ArmorID JOIN ArmorPiece ON Weapon.WeaponID = ArmorPiece.ArmorPieceID
 */
+Insert Into LargeMonster (LMonsterName, SmalllestSize, LargestSize, Element, Blight, MonsterType)
+Values	('Kulve Taroth', '4573.0', '4573.0', 'Fire', 'Fireblight', 'Elder Dragon')
+Select * From LargeMonster
+
+Insert Into Habitat (HabitatName,		NumAreas)
+Values('Ancient Forest', '17'),
+	('Wildspire Waste', '16'),
+	('Coral Highlands', '15'),
+	('Caves of Elderado','4'),
+	('Elder''s Recess', '16'),
+	('Rotten Vale',		'16') 
+
+Insert Into Weapon(WeaponName, WeaponClass, BaseAttack, Rarity, RootTree, ElderSeal, NatSharpness, MaxSharpness, Elements, Affinity)
+Values ('True Gae Bolg',	'Insect Glaive',	'589',	'R8',	'WorkShop',	'True', 'Blue', 'White', 'Dragon 300', '20%'),
+		('Wyvern Ignition Impact', 'Great Sword',	'1008',	'R7', 'WorkShop',	'False', 'White', 'White', '(510 Fire)', '-15%'),
+		('Metal Bagpipe I', 'Hunting Horn', '336', 'R1', 'Ore', 'False', 'Yellow', 'Green', NULL, '0%')
